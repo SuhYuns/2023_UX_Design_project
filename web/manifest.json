@@ -1,11 +1,11 @@
 {
-    "name": "ux_design_trace",
-    "short_name": "ux_design_trace",
+    "name": "ux_design_project",
+    "short_name": "ux_design_project",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "the project for UX DESIGN",
+    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

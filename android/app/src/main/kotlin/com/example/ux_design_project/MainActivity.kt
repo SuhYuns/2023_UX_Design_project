@@ -1,4 +1,4 @@
-package com.example.ux_design_trace
+package com.example.ux_design_project
 
 import io.flutter.embedding.android.FlutterActivity
 
