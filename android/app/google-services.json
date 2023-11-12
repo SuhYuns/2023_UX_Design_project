@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "935922556152",
+    "project_id": "trace-uxdesign",
+    "storage_bucket": "trace-uxdesign.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:935922556152:android:40a207b696965027dc6f0d",
+        "android_client_info": {
+          "package_name": "com.yan9hwa.uxdesigntrace"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfflXRGqJ5lerO_djAaZjdlTYWA-ky9v8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
