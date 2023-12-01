@@ -11,20 +11,20 @@ void main() async {
   runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: TableCalendarScreen()
+        home: Main()
       )
   );
 }
 
 
-class TableCalendarScreen extends StatefulWidget {
-  const TableCalendarScreen({Key? key}) : super(key: key);
+class Main extends StatefulWidget {
+  const Main({Key? key}) : super(key: key);
 
   @override
-  State<TableCalendarScreen> createState() => _TableCalendarScreenState();
+  State<Main> createState() => _Main();
 }
 
-class _TableCalendarScreenState extends State<TableCalendarScreen> {
+class _Main extends State<Main> {
   var state = 0;
 
   @override
@@ -59,16 +59,88 @@ class _TableCalendarScreenState extends State<TableCalendarScreen> {
         ],
       ),
 
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.indigo,
-        child: Icon(Icons.add),
-        onPressed: (){
-          {};
-        },
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: Colors.indigo,
+      //   child: Icon(Icons.add),
+      //   onPressed: (){
+      //     showDialog(context: context, barrierDismissible: true, builder: (context) {
+      //       return addBlock();
+      //     });
+      //   },
+      // ),
+    );
+  }
+}
+
+class addBlock extends StatelessWidget {
+  addBlock({super.key, this.selectedDay, this.view_todo});
+  final selectedDay;
+  final view_todo;
+  var todoInput = TextEditingController();
+
+  save_todo(item) async {
+    var storage = await SharedPreferences.getInstance();
+    var null_check = storage.getStringList('todo_items') ?? 'none';
+    var date = selectedDay.year.toString() + selectedDay.month.toString() + selectedDay.day.toString();
+    var location = "건국대학교";
+
+    if (null_check == 'none') {
+      // 기존 요소 없을 시 초기화
+      storage.setStringList("todo_items", []);
+    }
+
+    var item_list = storage.getStringList("todo_items");
+    item_list?.add(jsonEncode({ 'date' : date, "item" :  item, "done" : false, "location" : location}));
+    storage.setStringList('todo_items', item_list!);
+    print("저장 완료!");
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.grey.shade100,
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 50,
+        vertical: 100,
+      ),
+      child: SizedBox(
+        width: 100,
+        height: 200,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(
+              selectedDay.year.toString() + " " + selectedDay.month.toString() + " " +  selectedDay.day.toString(),
+              style: TextStyle(fontSize: 15),
+            ),
+            TextField(
+              controller: todoInput,
+              decoration: InputDecoration(
+                  labelText: "todo 추가",
+                  filled: true,
+                  fillColor: Colors.indigo.shade100,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none, // 테두리 선을 없애준다
+                  )
+              ),
+
+            ),
+            TextButton(
+              child: Text("추가"),
+              onPressed: () {
+                save_todo(todoInput.text);
+                view_todo();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
 
 
 class home extends StatefulWidget {
@@ -97,23 +169,7 @@ class _homeState extends State<home> {
     var storage = await SharedPreferences.getInstance();
     storage.remove("todo_items");
     print("삭제 완료!");
-  }
-
-  save_todo(item) async {
-    var storage = await SharedPreferences.getInstance();
-    var null_check = storage.getStringList('todo_items') ?? 'none';
-    var date = selectedDay.year.toString() + selectedDay.month.toString() + selectedDay.day.toString();
-
-    if (null_check == 'none') {
-      // 기존 요소 없을 시 초기화
-      storage.setStringList("todo_items", []);
-    }
-
-    var item_list = storage.getStringList("todo_items");
-    item_list?.add(jsonEncode({ 'date' : date, "item" :  item}));
-    storage.setStringList('todo_items', item_list!);
-    print("저장 완료!");
-
+    view_todo();
   }
 
   view_todo() async {
@@ -129,14 +185,46 @@ class _homeState extends State<home> {
     setState(() {
       current_todo_items = [];
       var item_list = storage.getStringList("todo_items");
+      var counting = 0;
       item_list?.forEach((i) {
-        print(jsonDecode(i)['item']);
-        print(jsonDecode(i)['date']);
         if (jsonDecode(i)['date'] == date) {
-          current_todo_items.add(jsonDecode(i)['item']);
+          var test = jsonDecode(i);
+          test["number"] = counting;
+          current_todo_items.add(test);
         }
+        counting += 1;
       });
     });
+  }
+  //
+  change_state(target) async {
+    var storage = await SharedPreferences.getInstance();
+    var item_list = storage.getStringList("todo_items");
+
+    if (item_list != null && item_list.length > 1) {
+      var test = jsonDecode(item_list[target]);
+      test["done"] = !test["done"];
+      item_list[target] = jsonEncode(test);
+      storage.setStringList('todo_items', item_list!);
+    } else {
+      print("todo_items 키로 저장된 값이 없거나 인덱스가 올바르지 않습니다.");
+    }
+    view_todo();
+  }
+
+  del_item(target) async {
+    var storage = await SharedPreferences.getInstance();
+    var item_list = storage.getStringList("todo_items");
+
+    var test = jsonDecode(item_list as String);
+    print(test);
+    // test = test.removeAt(target);
+    // item_list = jsonEncode(test);
+    // print(item_list);
+    // storage.setStringList('todo_items', item_list!);
+
+
+    view_todo();
   }
 
   @override
@@ -146,79 +234,103 @@ class _homeState extends State<home> {
     view_todo();
   }
 
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TableCalendar(
-          // 캘린더 디자인 관련 부분
-          headerStyle: HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-              titleTextStyle: TextStyle(fontSize: 15)
-          ),
-          // calendarStyle: const CalendarStyle(
-          //
-          // ),
+    return SingleChildScrollView(
+      child: Column(
+          children: [
+            TableCalendar(
+              // 캘린더 디자인 관련 부분
+              headerStyle: HeaderStyle(
+                  formatButtonVisible: false,
+                  titleCentered: true,
+                  titleTextStyle: TextStyle(fontSize: 15)
+              ),
+              // calendarStyle: const CalendarStyle(
+              //
+              // ),
 
-          locale: 'ko_KR',
-          firstDay: DateTime.utc(2021, 10, 16),
-          lastDay: DateTime.utc(2030, 3, 14),
-          focusedDay: focusedDay,
+              locale: 'ko_KR',
+              firstDay: DateTime.utc(2021, 10, 16),
+              lastDay: DateTime.utc(2030, 3, 14),
+              focusedDay: focusedDay,
 
-          calendarFormat: format,
-          onFormatChanged: (CalendarFormat format) {
-            setState(() {
-              this.format = format;
-            });
-          },
-          onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
-            // 선택된 날짜의 상태를 갱신합니다.
-            setState((){
-              this.selectedDay = selectedDay;
-              this.focusedDay = focusedDay;
-              view_todo();
-            });
+              calendarFormat: format,
+              onFormatChanged: (CalendarFormat format) {
+                setState(() {
+                  this.format = format;
+                });
+              },
+              onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
+                // 선택된 날짜의 상태를 갱신합니다.
+                setState((){
+                  this.selectedDay = selectedDay;
+                  this.focusedDay = focusedDay;
+                  view_todo();
+                });
 
-          },
-          selectedDayPredicate: (DateTime day) {
-            // selectedDay 와 동일한 날짜의 모양을 바꿔줍니다.
-            return isSameDay(selectedDay, day);
-          },
+              },
+              selectedDayPredicate: (DateTime day) {
+                // selectedDay 와 동일한 날짜의 모양을 바꿔줍니다.
+                return isSameDay(selectedDay, day);
+              },
+            ),
+
+            ListView.builder(shrinkWrap: true,
+                  itemCount: current_todo_items.length,
+                  itemBuilder: (c, i) {
+                    var done = TextDecoration.none;
+                    if (current_todo_items[i]["done"] == true) {
+                      done = TextDecoration.lineThrough;
+                    }
+
+                    return ListTile(
+                      onTap: () {
+                        print(current_todo_items[i]["item"].toString() + current_todo_items[i]["done"].toString());
+                        change_state(current_todo_items[i]["number"]);
+                      },
+                      title: Container(
+                        child: Row(
+                          children: [
+                            Text("[ " + current_todo_items[i]["location"] + " ]      " + current_todo_items[i]["item"],
+                              style: TextStyle(
+                                decoration: done
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.cancel_outlined, size: 14),
+                        onPressed: (){
+                          {
+                            del_item(current_todo_items[i]["number"]);
+                          }
+                        },
+                      ),
+                    );
+              }
+              ),
+            Container(
+              height: 50,
+            ),
+            TextButton(
+                onPressed: () {
+                  showDialog(context: context, barrierDismissible: true, builder: (context) {
+                         return addBlock(selectedDay : selectedDay, view_todo: view_todo);
+                       });
+                },
+                child: Text("todo 추가하기")
+            ),
+            TextButton(
+                onPressed: (){
+                  clear();
+                },
+                child: Text("초기화")
+            )
+          ],
         ),
-
-        ListView.builder(shrinkWrap: true,
-              itemCount: current_todo_items.length,
-              itemBuilder: (c, i) {
-                return ListTile(
-                  leading: Icon(Icons.check_box_outline_blank),
-                  title: Text(current_todo_items[i].toString()),
-                );
-          }
-          ),
-        Container(
-          height: 50,
-        ),
-        TextField(
-          controller: todoInput,
-          decoration: InputDecoration(
-            labelText: "todo 추가",
-              filled: true,
-              fillColor: Colors.indigo.shade100,
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide.none, // 테두리 선을 없애준다
-              )
-          ),
-
-        ),
-        TextButton(
-          child: Text("추가"),
-          onPressed: () {
-            save_todo(todoInput.text);
-            view_todo();
-          },
-        ),
-      ],
     );
   }
 }
