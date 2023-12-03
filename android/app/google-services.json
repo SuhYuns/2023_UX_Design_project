@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "259290256731",
+    "project_id": "kuux-project-trace",
+    "storage_bucket": "kuux-project-trace.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:259290256731:android:47b1f19e3300becaebb67e",
+        "android_client_info": {
+          "package_name": "com.yan9hwa.kuuxprojecttrace"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_UU_gi04qGHu2mYid73b5WtqD2xCb3io"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
