@@ -5,8 +5,9 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'feedback.dart';
 import 'firebase_options.dart';
-// import './users.dart';
+import 'users.dart';
 
 
 
@@ -28,7 +29,33 @@ class Main extends StatefulWidget {
 
 class _Main extends State<Main> {
   var state = 0;
+  var test = "";
   final auth = FirebaseAuth.instance;
+
+  logout() async {
+    await auth.signOut();
+  }
+
+  var user_name = "";
+  user_name_change() {
+    setState(() {
+      user_name = "익명";
+      var nullCheck = auth.currentUser!.email ?? 'none';
+      if (nullCheck != null) {
+        test = auth.currentUser!.email.toString();
+        test = test.substring(0, test.indexOf('@'));
+        user_name = test;
+      }
+      print("hello");
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // user_name_change();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +67,25 @@ class _Main extends State<Main> {
         elevation: 0,
         centerTitle: true,
         actions: [
-          if(auth.currentUser?.uid == null) Text("비회원상태"),
-          if(auth.currentUser?.uid != null) Text("회원상태"),
+          if(auth.currentUser?.uid == null)
+            TextButton(
+                onPressed: (){
+                  showDialog(context: context, barrierDismissible: true, builder: (context) {
+                    return Users_login(user_name_change: user_name_change);
+                  });
+
+                },
+                child: Text("비회원 상태", style: TextStyle(fontSize: 12))
+            ),
+          if(auth.currentUser?.uid != null)
+            TextButton(
+                onPressed: (){
+                  showDialog(context: context, barrierDismissible: true, builder: (context) {
+                    return logout();
+                  });
+                },
+                child: Text(user_name + " 님", style: TextStyle(fontSize: 12),)
+            ),
           PopupMenuButton(
             // add icon, by default "3 dot" icon
 
@@ -50,11 +94,23 @@ class _Main extends State<Main> {
                 return [
                   PopupMenuItem<int>(
                     value: 0,
-                    child: Text("백업/로드"),
+                    child: TextButton(
+                      child: Text("백업/로드"),
+                      onPressed: (){
+                        showDialog(context: context, barrierDismissible: true, builder: (context) {
+                          return Test();
+                        });
+                      },
+                    ),
                   ),
                   PopupMenuItem<int>(
                     value: 1,
-                    child: Text("문의하기"),
+                    child: TextButton(
+                      child:Text("문의하기"),
+                      onPressed: (){
+
+                      },
+                    )
                   ),
                 ];
               },
@@ -138,6 +194,7 @@ class _addBlockState extends State<addBlock> {
   void initState() {
     super.initState();
     _asyncMethod();
+
   }
 
   _asyncMethod() async {
@@ -200,7 +257,8 @@ class _addBlockState extends State<addBlock> {
       margin: const EdgeInsets.all(5),
       decoration: BoxDecoration(
           border: Border.all(width: 1, color: Colors.indigo),
-          color: Color.fromARGB(245, 245, 245, 245)),
+          color: Color.fromARGB(245, 245, 245, 245),
+      ),
       child: DropdownButton(
         style: TextStyle(backgroundColor: Color.fromARGB(245, 245, 245, 245)),
         value: _selectedValue,
@@ -446,7 +504,7 @@ class _homeState extends State<home> {
     storage.setStringList('todo_items', item_list!);
     var itemList = storage.getStringList("todo_items");
 
-    var test = jsonDecode(itemList as String);
+    // var test = jsonDecode(itemList as String);
 
     // view_todo();
   }
@@ -580,8 +638,20 @@ class record extends StatefulWidget {
 class _recordState extends State<record> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text("hello"),
+    return SingleChildScrollView(
+      child: Container(
+        child: Column(
+          children: [
+            Container(
+              height: 80,
+            ),
+            Text("장소별 통계", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            PieChartSample3(),
+            Text("수행률", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            PieChartSample1(),
+          ],
+        )
+      ),
     );
   }
 }
