@@ -34,6 +34,7 @@ class _Main extends State<Main> {
 
   logout() async {
     await auth.signOut();
+    user_name_change();
   }
 
   var user_name = "";
@@ -98,7 +99,12 @@ class _Main extends State<Main> {
                       child: Text("백업/로드"),
                       onPressed: (){
                         showDialog(context: context, barrierDismissible: true, builder: (context) {
-                          return Test();
+                          var userCheck = auth.currentUser!.uid ?? 'none';
+                          if (userCheck != 'none') {
+                            return Test();
+                          } else {
+                            return Users_register(user_name_change:user_name_change);
+                          }
                         });
                       },
                     ),

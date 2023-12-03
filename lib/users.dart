@@ -257,40 +257,59 @@ class Test extends StatelessWidget {
       // print(jsonDecode(result));
 
 
-      // var nullCheck = storage.getStringList('todo_items') ?? 'none';
-      // if (nullCheck == 'none') {
-      //   storage.setStringList("todo_items", []);
-      // }
+      var nullCheck = storage.getStringList('todo_items') ?? 'none';
+      if (nullCheck == 'none') {
+        storage.setStringList("todo_items", []);
+      }
 
-      // var itemList = storage.getStringList("todo_items");
-      // itemList?.add(jsonEncode(
-      //     {'date': date, "item": item, "done": false, "location": location}));
-      // storage.setStringList('todo_items', itemList!);
-      // print("저장 완료!");
+      print(nullCheck);
+      print(nullCheck.runtimeType);
+      print("저장 완료!");
 
-      // print(result.docs[0]['items']);
       var items_list = new List.empty(growable: true);
       var locs_list = new List.empty(growable: true);
-      for (var doc in result.docs) {
-        print(doc['items']);
 
+      for (var doc in result.docs) {
         for (var doc2 in doc['items']) {
-          items_list.add(jsonEncode(doc2));
+          items_list.add(doc2 as String);
         }
         for (var doc3 in doc['location']) {
-          locs_list.add(jsonEncode(doc3));
+          locs_list.add(doc3 as String);
         }
-
-        print(items_list);
-        print(locs_list);
-        // storage.setStringList('todo_items', items_list);
-        // storage.setStringList('locations', locs_list);
       }
-      // var test = result['user'] ?? 'none';
 
-    } else {
-      print("오류 발생");
+      final List<String> strs = items_list.map((e) => e.toString()).toList();
+      final List<String> locs2 = items_list.map((e) => e.toString()).toList();
+      print(locs2);
+      storage.remove("todo_items");
+      // storage.remove("locations");
+      storage.setStringList('todo_items', strs);
+      // storage.setStringList('locations', locs2);
     }
+
+      // print(result.docs[0]['items']);
+      // var items_list = new List.empty(growable: true);
+      // var locs_list = new List.empty(growable: true);
+      // for (var doc in result.docs) {
+      //   print(doc['items']);
+      //
+      //   for (var doc2 in doc['items']) {
+      //     items_list.add(jsonEncode(doc2));
+      //   }
+      //   for (var doc3 in doc['location']) {
+      //     locs_list.add(jsonEncode(doc3));
+      //   }
+      //
+      //   print(items_list as String);
+      //   // print(locs_list);
+      //   storage.setStringList('todo_items', items_list);
+        // storage.setStringList('locations', locs_list);
+    //   }
+    //   // var test = result['user'] ?? 'none';
+    //
+    // } else {
+    //   print("오류 발생");
+    // }
 
 
 
@@ -315,14 +334,14 @@ class Test extends StatelessWidget {
               child: Text("백업", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               onPressed: () {
                 view();
-                // Navigator.pop(context);
+                Navigator.pop(context);
               },
             ),
             TextButton(
               child: Text("로드", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               onPressed: () {
                 load();
-                // Navigator.pop(context);
+                Navigator.pop(context);
               },
             ),
 
